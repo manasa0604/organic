@@ -1,28 +1,26 @@
 version: 0.2
 
-env:
-  variables:
-    AWS_REGION: "us-east-1"
-    IMAGE_TAG: "latest"
-
 phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
       - aws --version
-      - $(aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 044519418214.dkr.ecr.$AWS_REGION.amazonaws.com)
+      - docker --version
+      - $(aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 044519418214.dkr.ecr.us-east-1.amazonaws.com)
+
   build:
     commands:
+      - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t organic .
-      - docker tag organic:$IMAGE_TAG 044519418214.dkr.ecr.$AWS_REGION.amazonaws.com/organic:$IMAGE_TAG
+      - docker tag organic:latest 044519418214.dkr.ecr.us-east-1.amazonaws.com/organic:latest
+
   post_build:
     commands:
-      - echo Pushing Docker image to ECR...
-      - docker push 044519418214.dkr.ecr.$AWS_REGION.amazonaws.com/organic:$IMAGE_TAG
-      - echo Writing imagedefinitions.json...
-      - printf '[{"name":"organic","imageUri":"044519418214.dkr.ecr.us-east-1.amazonaws.com/organic:%s"}]' "$IMAGE_TAG" > imagedefinitions.json
+      - echo Pushing the Docker image...
+      - docker push 044519418214.dkr.ecr.us-east-1.amazonaws.com/organic:latest
+      - echo Writing image definitions...
+      - printf '[{"name":"organic-container","imageUri":"%s"}]' 044519418214.dkr.ecr.us-east-1.amazonaws.com/organic:latest > imagedefinitions.json
 
 artifacts:
-  files:
-    - imagedefinitions.json
+  files: imagedefinitions.json
