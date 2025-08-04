@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    AWS_REGION: "us-east-1"
+    AWS_REGION: "us-east-1a"
     IMAGE_TAG: "latest"
 
 phases:
