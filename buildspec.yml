@@ -5,32 +5,27 @@ env:
     AWS_REGION: us-east-1
     AWS_ACCOUNT_ID: 044519418214
     REPOSITORY_NAME: organic
-    REPOSITORY URI :  044519418214.dkr.ecr.us-east-1.amazonaws.com/organic-ecr-registry
 
 phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
       - aws --version
-      - docker --version 
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - $(aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com)
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+
   build:
     commands:
       - echo Building the Docker image...
       - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
       - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
+
   post_build:
     commands:
-     post_build:
-  commands:
-    - echo Build completed on `date`
-    - echo "Pushing image to ECR..."
-    - echo "REPO URI: $REPOSITORY_URI"
-    - echo "TAG: $IMAGE_TAG"
-    - docker push $REPOSITORY_URI:$IMAGE_TAG || (echo "❌ Push failed"; exit 1)
-
+      - echo Pushing the Docker image to ECR...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
 
 artifacts:
   files: '**/*'
