@@ -1,22 +1,26 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_REGION: us-east-1
+    IMAGE_REPO_NAME: organic
+    IMAGE_TAG: latest
+
 phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
       - aws --version
-      - $(aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 044519418214.dkr.ecr.us-east-1.amazonaws.com)
-
+      - $(aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 044519418214.dkr.ecr.$AWS_REGION.amazonaws.com)
+      - REPOSITORY_URI=044519418214.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME
   build:
     commands:
-      - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t organic .
-      - docker tag organic:latest 044519418214.dkr.ecr.us-east-1.amazonaws.com/organic:latest
-
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
   post_build:
     commands:
       - echo Pushing the Docker image...
-      - docker push 044519418214.dkr.ecr.us-east-1.amazonaws.com/organic:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+
 artifacts:
   files: '**/*'
