@@ -11,7 +11,7 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws --version
-      -  aws ecr get-login-password | docker login --username AWS --password-stdin 044519418214.dkr.ecr.us-west-2.amazonaws.com/organic
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 044519418214.dkr.ecr.$AWS_REGION.amazonaws.com
       - REPOSITORY_URI=044519418214.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME
   build:
     commands:
