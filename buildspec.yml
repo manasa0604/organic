@@ -5,6 +5,7 @@ env:
     AWS_REGION: us-east-1
     AWS_ACCOUNT_ID: 044519418214
     REPOSITORY_NAME: organic
+    REPOSITORY URI :  044519418214.dkr.ecr.us-east-1.amazonaws.com/organic-ecr-registry
 
 phases:
   pre_build:
