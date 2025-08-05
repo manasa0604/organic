@@ -12,11 +12,11 @@ phases:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t organic .
-      - docker tag organic:latest 123456789012.dkr.ecr.us-east-1.amazonaws.com/organic:latest
+      - docker tag organic:latest 044519418214.dkr.ecr.us-east-1.amazonaws.com/organic:latest
 
   post_build:
     commands:
       - echo Pushing the Docker image...
-      - docker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/organic:latest
+      - docker push 044519418214.dkr.ecr.us-east-1.amazonaws.com/organic:latest
 artifacts:
   files: '**/*'
