@@ -1,26 +1,30 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_REGION: us-east-1
+    AWS_ACCOUNT_ID: 044519418214
+    REPOSITORY_NAME: organic
+
 phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws --version
-      - docker --version
-      - $(aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 044519418214.dkr.ecr.us-east-1.amazonaws.com)
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPOSITORY_NAME
 
   build:
     commands:
-      - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t organic .
-      - docker tag organic:latest 044519418214.dkr.ecr.us-east-1.amazonaws.com/organic:latest
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
+      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
 
   post_build:
     commands:
       - echo Pushing the Docker image...
-      - docker push 044519418214.dkr.ecr.us-east-1.amazonaws.com/organic:latest
-      - echo Writing image definitions...
-      - printf '[{"name":"organic-container","imageUri":"%s"}]' 044519418214.dkr.ecr.us-east-1.amazonaws.com/organic:latest > imagedefinitions.json
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
 
 artifacts:
-  files: imagedefinitions.json
+  files: '**/*'
